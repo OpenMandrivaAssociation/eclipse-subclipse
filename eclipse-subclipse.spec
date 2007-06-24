@@ -8,7 +8,7 @@
 
 Name:           eclipse-subclipse
 Version:        1.1.9
-Release:        %mkrel 2.2
+Release:        %mkrel 2.3
 Epoch:          0
 Summary:        Subversion Eclipse plugin
 Group:          Development/Java
