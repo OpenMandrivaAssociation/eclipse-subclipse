@@ -8,7 +8,7 @@
 
 Name:           eclipse-subclipse
 Version:        1.1.9
-Release:        %mkrel 2.3
+Release:        %mkrel 2.4
 Epoch:          0
 Summary:        Subversion Eclipse plugin
 Group:          Development/Java
@@ -20,6 +20,11 @@ Source0:        subclipse-%{version}.tar.bz2
 # different than the source repository
 Source10:       subclipse-fetch-1.1.9.sh
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
+%if %mdkversion == 200800
+# For fixed EOL handling:
+# you may remove this on 2007-06-25 when iurt chroots are updated
+BuildRequires: spec-helper >= 0.26
+%endif
 BuildRequires:          ant
 BuildRequires:          jpackage-utils
 BuildRequires:          coreutils
