@@ -7,8 +7,8 @@
 
 
 Name:           eclipse-subclipse
-Version:        1.1.9
-Release:        %mkrel 2.4
+Version:        1.2.3
+Release:        %mkrel 0.0.1
 Epoch:          0
 Summary:        Subversion Eclipse plugin
 Group:          Development/Java
@@ -18,7 +18,7 @@ Source0:        subclipse-%{version}.tar.bz2
 # Script to fetch the source code
 # the new source tarball does not includes the book feature and the layout is
 # different than the source repository
-Source10:       subclipse-fetch-1.1.9.sh
+Source1:       subclipse-fetch.sh
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 %if %mdkversion == 200800
 # For fixed EOL handling:
@@ -27,19 +27,14 @@ BuildRequires: spec-helper >= 0.26
 %endif
 BuildRequires:          ant
 BuildRequires:          jpackage-utils
-BuildRequires:          coreutils
 BuildRequires:          eclipse-pde
 %if %{gcj_support}
 BuildRequires:          java-gcj-compat-devel
 Requires(post):         java-gcj-compat
 Requires(postun):       java-gcj-compat
 %else
-BuildRequires:          java-devel >= 0:1.4.2
-%endif
-%if %{gcj_support}
-ExclusiveArch:          %{ix86} x86_64 ppc ia64
-%else
 BuildArch:              noarch
+BuildRequires:          java-devel
 %endif
 Requires:               eclipse-platform
 BuildRequires:          svn-javahl
@@ -52,7 +47,7 @@ Requires:               ganymed-ssh2
 %package book
 Summary:        Subversion book
 Group:          Development/Java
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name} = %{epoch}:%{version}-%{release}
 
 %description
 Subclipse is an Eclipse plugin that adds Subversion integration to the Eclipse
@@ -142,7 +137,6 @@ ln -s $(pwd)/svnClientAdapter/src/main/org/tigris/subversion/svnclientadapter su
 mkdir -p subclipse/org/tigris/subversion/subclipse
 ln -s $(pwd)/subclipse/core/src/org/tigris/subversion/subclipse/core subclipse/org/tigris/subversion/subclipse
 ln -s $(pwd)/subclipse/ui/src/org/tigris/subversion/subclipse/ui subclipse/org/tigris/subversion/subclipse
-
 
 %install
 rm -rf $RPM_BUILD_ROOT
