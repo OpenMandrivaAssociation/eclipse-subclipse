@@ -8,7 +8,7 @@
 
 Name:           eclipse-subclipse
 Version:        1.2.3
-Release:        %mkrel 0.0.1
+Release:        %mkrel 0.0.2
 Epoch:          0
 Summary:        Subversion Eclipse plugin
 Group:          Development/Java
@@ -30,8 +30,6 @@ BuildRequires:          jpackage-utils
 BuildRequires:          eclipse-pde
 %if %{gcj_support}
 BuildRequires:          java-gcj-compat-devel
-Requires(post):         java-gcj-compat
-Requires(postun):       java-gcj-compat
 %else
 BuildArch:              noarch
 BuildRequires:          java-devel
