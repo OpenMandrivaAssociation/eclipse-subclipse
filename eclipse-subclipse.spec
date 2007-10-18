@@ -7,8 +7,8 @@
 
 
 Name:           eclipse-subclipse
-Version:        1.2.3
-Release:        %mkrel 0.0.2
+Version:        1.2.4
+Release:        %mkrel 0.0.1
 Epoch:          0
 Summary:        Subversion Eclipse plugin
 Group:          Development/Java
