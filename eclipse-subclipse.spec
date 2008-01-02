@@ -19,6 +19,7 @@ Source0:        subclipse-%{version}.tar.bz2
 # the new source tarball does not includes the book feature and the layout is
 # different than the source repository
 Source1:       subclipse-fetch.sh
+BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 %if %mdkversion == 200800
 # For fixed EOL handling:
 # you may remove this on 2007-06-25 when iurt chroots are updated
