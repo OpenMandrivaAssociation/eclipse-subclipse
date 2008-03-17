@@ -26,6 +26,7 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: spec-helper >= 0.26
 %endif
 BuildRequires:          ant
+BuildRequires:          zip
 BuildRequires:          java-rpmbuild
 BuildRequires:          eclipse-pde
 %if %{gcj_support}
