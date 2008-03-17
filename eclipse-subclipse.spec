@@ -8,7 +8,7 @@
 
 Name:           eclipse-subclipse
 Version:        1.2.4
-Release:        %mkrel 0.0.2
+Release:        %mkrel 0.0.3
 Epoch:          0
 Summary:        Subversion Eclipse plugin
 Group:          Development/Java
@@ -39,8 +39,8 @@ BuildRequires:          svn-javahl
 Requires:               svn-javahl
 BuildRequires:          svnkit
 Requires:               svnkit
-BuildRequires:          ganymed-ssh2
-Requires:               ganymed-ssh2
+BuildRequires:          trilead-ssh2
+Requires:               trilead-ssh2
 
 %package book
 Summary:        Subversion book
@@ -67,7 +67,7 @@ ln -sf %{_jnidir}/svn-javahl.jar svnClientAdapter/lib/svnjavahl.jar
 rm -f svnClientAdapter/lib/svnkit.jar
 ln -sf %{_javadir}/svnkit.jar svnClientAdapter/lib/svnkit.jar
 rm -f svnClientAdapter/lib/ganymed.jar
-ln -sf %{_javadir}/ganymed-ssh2.jar svnClientAdapter/lib/ganymed.jar
+ln -sf %{_javadir}/trilead-ssh2.jar svnClientAdapter/lib/ganymed.jar
 
 rm -f subclipse/core/lib/svnjavahl.jar
 ln -sf %{_jnidir}/svn-javahl.jar subclipse/core/lib/svnjavahl.jar
@@ -76,7 +76,7 @@ rm -f subclipse/core/lib/svnClientAdapter.jar
 rm -f subclipse/core/lib/svnkit.jar
 ln -sf %{_javadir}/svnkit.jar subclipse/core/lib/svnkit.jar
 rm -f subclipse/core/lib/ganymed.jar
-ln -sf %{_javadir}/ganymed-ssh2.jar subclipse/core/lib/ganymed.jar
+ln -sf %{_javadir}/trilead-ssh2.jar subclipse/core/lib/ganymed.jar
 
 %build
 # ---------------------------------
@@ -167,7 +167,7 @@ rm -f $RPM_BUILD_ROOT%{core_plugin_dir}/lib/ganymed.jar
 # TODO file a bug about this
 ln -s %{_jnidir}/svn-javahl.jar $RPM_BUILD_ROOT%{core_plugin_dir}/lib/svnjavahl.jar
 ln -s %{_javadir}/svnkit.jar $RPM_BUILD_ROOT%{core_plugin_dir}/lib/svnkit.jar
-ln -s %{_javadir}/ganymed-ssh2.jar $RPM_BUILD_ROOT%{core_plugin_dir}/lib/ganymed.jar
+ln -s %{_javadir}/trilead-ssh2.jar $RPM_BUILD_ROOT%{core_plugin_dir}/lib/ganymed.jar
 
 %clean
 rm -rf $RPM_BUILD_ROOT
