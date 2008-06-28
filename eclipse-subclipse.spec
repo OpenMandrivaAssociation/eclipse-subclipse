@@ -1,4 +1,4 @@
-%define gcj_support     1
+%define gcj_support     0
 
 %define eclipse_name    eclipse
 %define eclipse_base    %{_datadir}/%{eclipse_name}
@@ -8,7 +8,7 @@
 
 Name:           eclipse-subclipse
 Version:        1.2.4
-Release:        %mkrel 0.0.3
+Release:        %mkrel 0.0.4
 Epoch:          0
 Summary:        Subversion Eclipse plugin
 Group:          Development/Java
@@ -64,14 +64,14 @@ The Subversion book as an Eclipse documentation plugin.
 
 # delete the jars that are in the archive
 rm svnClientAdapter/lib/svnjavahl.jar
-ln -sf %{_jnidir}/svn-javahl.jar svnClientAdapter/lib/svnjavahl.jar
+ln -sf %{_javadir}/svn-javahl.jar svnClientAdapter/lib/svnjavahl.jar
 rm -f svnClientAdapter/lib/svnkit.jar
 ln -sf %{_javadir}/svnkit.jar svnClientAdapter/lib/svnkit.jar
 rm -f svnClientAdapter/lib/ganymed.jar
 ln -sf %{_javadir}/trilead-ssh2.jar svnClientAdapter/lib/ganymed.jar
 
 rm -f subclipse/core/lib/svnjavahl.jar
-ln -sf %{_jnidir}/svn-javahl.jar subclipse/core/lib/svnjavahl.jar
+ln -sf %{_javadir}/svn-javahl.jar subclipse/core/lib/svnjavahl.jar
 rm -f subclipse/core/lib/svnClientAdapter.jar
 # svnClientAdapter.jar is copied after being built
 rm -f subclipse/core/lib/svnkit.jar
@@ -160,9 +160,7 @@ rm -f $RPM_BUILD_ROOT%{core_plugin_dir}/lib/svnjavahl.jar
 rm -f $RPM_BUILD_ROOT%{core_plugin_dir}/lib/svnkit.jar
 rm -f $RPM_BUILD_ROOT%{core_plugin_dir}/lib/ganymed.jar
 
-%if %{gcj_support}
-%{_bindir}/aot-compile-rpm
-%endif
+%{gcj_compile}
 
 # We need to setup the symlink because the ant copy task doesn't preserve symlinks
 # TODO file a bug about this
@@ -188,10 +186,7 @@ rm -rf $RPM_BUILD_ROOT
 %{eclipse_base}/plugins/org.tigris.subversion.subclipse.ui_*
 %{eclipse_base}/plugins/org.tigris.subversion.subclipse.doc_*
 %doc svnClientAdapter/readme.txt svnClientAdapter/changelog.txt svnClientAdapter/license.txt 
-
-%if %{gcj_support}
-%{_libdir}/gcj/%{name}
-%endif
+%{gcj_files}
 
 %files book
 %defattr(-,root,root)
