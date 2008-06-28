@@ -8,7 +8,7 @@
 
 Name:           eclipse-subclipse
 Version:        1.2.4
-Release:        %mkrel 0.0.4
+Release:        %mkrel 0.0.5
 Epoch:          0
 Summary:        Subversion Eclipse plugin
 Group:          Development/Java
@@ -164,7 +164,7 @@ rm -f $RPM_BUILD_ROOT%{core_plugin_dir}/lib/ganymed.jar
 
 # We need to setup the symlink because the ant copy task doesn't preserve symlinks
 # TODO file a bug about this
-ln -s %{_jnidir}/svn-javahl.jar $RPM_BUILD_ROOT%{core_plugin_dir}/lib/svnjavahl.jar
+ln -s %{_javadir}/svn-javahl.jar $RPM_BUILD_ROOT%{core_plugin_dir}/lib/svnjavahl.jar
 ln -s %{_javadir}/svnkit.jar $RPM_BUILD_ROOT%{core_plugin_dir}/lib/svnkit.jar
 ln -s %{_javadir}/trilead-ssh2.jar $RPM_BUILD_ROOT%{core_plugin_dir}/lib/ganymed.jar
 
