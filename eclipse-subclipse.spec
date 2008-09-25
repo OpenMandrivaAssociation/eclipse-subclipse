@@ -3,15 +3,16 @@
 %define disable_javahl  0
 %define eclipse_name    eclipse
 %define eclipse_base    %{_libdir}/%{eclipse_name}
-%define core_plugin_jar %{eclipse_base}/dropins/subclipse/eclipse/plugins/org.tigris.subversion.subclipse.core_%{version}.jar
-%define core_plugin_dir %{eclipse_base}/dropins/subclipse/eclipse/plugins/org.tigris.subversion.subclipse.core_%{version}
+%define eclipse_inst	%{_datadir}/%{eclipse_name}
+%define core_plugin_jar %{eclipse_inst}/dropins/subclipse/eclipse/plugins/org.tigris.subversion.subclipse.core_%{version}.jar
+%define core_plugin_dir %{eclipse_inst}/dropins/subclipse/eclipse/plugins/org.tigris.subversion.subclipse.core_%{version}
 
 %define javahl_dir      %{_javadir}
 
 
 Name:           eclipse-subclipse
 Version:        1.2.4
-Release:        %mkrel 0.1.1
+Release:        %mkrel 0.1.2
 Epoch:          0
 Summary:        Subversion Eclipse plugin
 Group:          Development/Java
@@ -115,9 +116,9 @@ ln -s $(pwd)/subclipse/ui/src/org/tigris/subversion/subclipse/ui subclipse/org/t
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d -m 755 $RPM_BUILD_ROOT%{eclipse_base}
+install -d -m 755 $RPM_BUILD_ROOT%{eclipse_inst}
 
-installDir=$RPM_BUILD_ROOT%{eclipse_base}/dropins/subclipse
+installDir=$RPM_BUILD_ROOT%{eclipse_inst}/dropins/subclipse
 install -d -m 755 $installDir
 install -d -m 755 ${installDir}-book
 pushd subclipse
@@ -159,10 +160,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%{eclipse_base}/dropins/subclipse
+%{eclipse_inst}/dropins/subclipse
 %doc svnClientAdapter/readme.txt svnClientAdapter/changelog.txt svnClientAdapter/license.txt 
 %{gcj_files}
 
 %files book
 %defattr(-,root,root)
-%{eclipse_base}/dropins/subclipse-book
+%{eclipse_inst}/dropins/subclipse-book
