@@ -1,31 +1,24 @@
 %define gcj_support     0
 
-%define disable_javahl  0
 %define eclipse_name    eclipse
 %define eclipse_base    %{_libdir}/%{eclipse_name}
 %define eclipse_inst	%{_datadir}/%{eclipse_name}
-%define core_plugin_jar %{eclipse_inst}/dropins/subclipse/eclipse/plugins/org.tigris.subversion.subclipse.core_%{version}.jar
-%define core_plugin_dir %{eclipse_inst}/dropins/subclipse/eclipse/plugins/org.tigris.subversion.subclipse.core_%{version}
-
-%define javahl_dir      %{_javadir}
-
+%define javahl_plugin_name org.tigris.subversion.clientadapter.javahl_1.5.4.1
 
 Name:           eclipse-subclipse
-Version:        1.2.4
-Release:        %mkrel 0.1.2
+Version:        1.4.7
+Release:        %mkrel 0.3.0
 Epoch:          0
 Summary:        Subversion Eclipse plugin
 Group:          Development/Java
-License:        EPL
+License:        EPL and CC-BY
 URL:            http://subclipse.tigris.org/
 Source0:        subclipse-%{version}.tgz
 # Script to fetch the source code
 # the new source tarball does not includes the book feature and the layout is
 # different than the source repository
 Source10:       subclipse-fetch-1.2.4.sh
-# Disable javahl support temporaly until apparent classloader problem is fixed
-Patch0:         eclipse-subclipse-1.2.2-default-svnkit.patch
-Patch1:         eclipse-subclipse-1.2.2-plugin-classpath.patch
+Patch0:         eclipse-subclipse-1.4.7-dependencies.patch
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
 %if %mdkversion == 200800
 # For fixed EOL handling:
@@ -50,102 +43,74 @@ Requires:               svnkit
 BuildRequires:          trilead-ssh2
 Requires:               trilead-ssh2
 
-%package book
-Summary:        Subversion book
-Group:          Development/Java
-Requires:       %{name} = %{epoch}:%{version}-%{release}
+BuildArch:              noarch
+
+Obsoletes:              eclipse-subclipse-book < 1.4
 
 %description
 Subclipse is an Eclipse plugin that adds Subversion integration to the Eclipse
 IDE.
 
-%description book
-The Subversion book as an Eclipse documentation plugin.
+%package graph
+Summary:        Subversion Revision Graph
+Group:          Development/Java
+Requires:       %{name} = %{version}
+Requires:       eclipse-gef
+
+%description graph
+Subversion Revision Graph for Subclipse.
 
 %prep
 %setup -q -n subclipse-%{version}
-%if %{disable_javahl}
-%patch -p1
-%endif
-%patch1 -p1
+%patch0 -p1
+# fixing wrong-file-end-of-line-encoding warnings
+sed -i 's/\r//' org.tigris.subversion.subclipse.graph/icons/readme.txt
 
-# delete the jars that are in the archive
-rm svnClientAdapter/lib/svnjavahl.jar
-ln -s %{javahl_dir}/svn-javahl.jar svnClientAdapter/lib/svnjavahl.jar
-rm -f svnClientAdapter/lib/svnkit.jar
-ln -s %{_javadir}/svnkit.jar svnClientAdapter/lib/svnkit.jar
-rm -f svnClientAdapter/lib/ganymed.jar
-ln -s %{_javadir}/trilead-ssh2.jar svnClientAdapter/lib/ganymed.jar
-
-rm -f subclipse/core/lib/svnjavahl.jar
-ln -s %{javahl_dir}/svn-javahl.jar subclipse/core/lib/svnjavahl.jar
-rm -f subclipse/core/lib/svnClientAdapter.jar
-# svnClientAdapter.jar is copied after being built
-rm -f subclipse/core/lib/svnkit.jar
-ln -s %{_javadir}/svnkit.jar subclipse/core/lib/svnkit.jar
-rm -f subclipse/core/lib/ganymed.jar
-ln -s %{_javadir}/trilead-ssh2.jar subclipse/core/lib/ganymed.jar
+# remove javahl sources
+rm -rf org.tigris.subversion.clientadapter.javahl/src/org/tigris/subversion/javahl
+ln -s %{_javadir}/svn-javahl.jar org.tigris.subversion.clientadapter.javahl
 
 %build
-# ---------------------------------
-# building svnClientAdapter
-pushd svnClientAdapter
-%{ant} svnClientAdapter.jar
-popd
-
-# copying svnClientAdapter inside subclipse module
-cp svnClientAdapter/build/lib/svnClientAdapter.jar subclipse/core/lib/svnClientAdapter.jar
-
-# ---------------------------------
-# building subclipse
-pushd subclipse
-
-%{eclipse_base}/buildscripts/pdebuild -f org.tigris.subversion.subclipse
-%{eclipse_base}/buildscripts/pdebuild -f org.tigris.subversion.book
-
-# returning to base build directory
-popd
-
-# Link source files to fix -debuginfo generation.
-rm -rf subclipse/org
-mkdir -p subclipse/org/tigris/subversion
-ln -s $(pwd)/svnClientAdapter/src/main/org/tigris/subversion/svnclientadapter subclipse/org/tigris/subversion
-mkdir -p subclipse/org/tigris/subversion/subclipse
-ln -s $(pwd)/subclipse/core/src/org/tigris/subversion/subclipse/core subclipse/org/tigris/subversion/subclipse
-ln -s $(pwd)/subclipse/ui/src/org/tigris/subversion/subclipse/ui subclipse/org/tigris/subversion/subclipse
+%{eclipse_base}/buildscripts/pdebuild            \
+  -f org.tigris.subversion.clientadapter.feature \
+  -o `pwd`/orbitDeps
+%{eclipse_base}/buildscripts/pdebuild                   \
+  -f org.tigris.subversion.clientadapter.javahl.feature \
+  -o `pwd`/orbitDeps
+%{eclipse_base}/buildscripts/pdebuild                   \
+  -f org.tigris.subversion.clientadapter.svnkit.feature \
+  -o `pwd`/orbitDeps                                    \
+  -d svnkit
+%{eclipse_base}/buildscripts/pdebuild \
+  -f org.tigris.subversion.subclipse  \
+  -o `pwd`/orbitDeps
+%{eclipse_base}/buildscripts/pdebuild              \
+  -f org.tigris.subversion.subclipse.graph.feature \
+  -o `pwd`/orbitDeps                               \
+  -d gef
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d -m 755 $RPM_BUILD_ROOT%{eclipse_inst}
 
-installDir=$RPM_BUILD_ROOT%{eclipse_inst}/dropins/subclipse
-install -d -m 755 $installDir
-install -d -m 755 ${installDir}-book
-pushd subclipse
-unzip -q -d $installDir build/rpmBuild/org.tigris.subversion.subclipse.zip
-unzip -q -d ${installDir}-book build/rpmBuild/org.tigris.subversion.book.zip
-popd
+installBase=$RPM_BUILD_ROOT%{eclipse_inst}
+install -d -m 755 $installBase
 
-# repacking core plugin as a directory based plugin, needed in order to replace some jars with symlinks
-mkdir $RPM_BUILD_ROOT%{core_plugin_dir}
-unzip -q -d $RPM_BUILD_ROOT%{core_plugin_dir} $RPM_BUILD_ROOT%{core_plugin_jar}
-rm $RPM_BUILD_ROOT%{core_plugin_jar}
-# packaging .class files as a jar file
-jar -cf $RPM_BUILD_ROOT%{core_plugin_dir}/lib/subclipse-core.jar -C $RPM_BUILD_ROOT%{core_plugin_dir} org
-rm -rf $RPM_BUILD_ROOT%{core_plugin_dir}/org
+# installing features
+install -d -m 755 $installBase/subclipse-clientadapter
+unzip -q -d $installBase/subclipse-clientadapter build/rpmBuild/org.tigris.subversion.clientadapter.feature.zip
+install -d -m 755 $installBase/subclipse-clientadapter-javahl
+unzip -q -d $installBase/subclipse-clientadapter-javahl build/rpmBuild/org.tigris.subversion.clientadapter.javahl.feature.zip
+install -d -m 755 $installBase/subclipse-clientadapter-svnkit
+unzip -q -d $installBase/subclipse-clientadapter-svnkit build/rpmBuild/org.tigris.subversion.clientadapter.svnkit.feature.zip
+install -d -m 755 $installBase/subclipse
+unzip -q -d $installBase/subclipse build/rpmBuild/org.tigris.subversion.subclipse.zip
+install -d -m 755 $installBase/subclipse-graph
+unzip -q -d $installBase/subclipse-graph build/rpmBuild/org.tigris.subversion.subclipse.graph.feature.zip
 
-# removing core plugin internal jars
-rm -f $RPM_BUILD_ROOT%{core_plugin_dir}/lib/svnjavahl.jar
-rm -f $RPM_BUILD_ROOT%{core_plugin_dir}/lib/svnkit.jar
-rm -f $RPM_BUILD_ROOT%{core_plugin_dir}/lib/ganymed.jar
-
-%{gcj_compile}
-
-# We need to setup the symlink because the ant copy task doesn't preserve symlinks
-# TODO file a bug about this
-ln -s %{javahl_dir}/svn-javahl.jar $RPM_BUILD_ROOT%{core_plugin_dir}/lib/svnjavahl.jar
-ln -s %{_javadir}/svnkit.jar $RPM_BUILD_ROOT%{core_plugin_dir}/lib/svnkit.jar
-ln -s %{_javadir}/trilead-ssh2.jar $RPM_BUILD_ROOT%{core_plugin_dir}/lib/ganymed.jar
+# replacing jar with links to system libraries
+rm $installBase/subclipse-clientadapter-javahl/eclipse/plugins/%{javahl_plugin_name}/svn-javahl.jar
+ln -s %{_javadir}/svn-javahl.jar $installBase/subclipse-clientadapter-javahl/eclipse/plugins/%{javahl_plugin_name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -160,10 +125,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%{eclipse_inst}/dropins/subclipse
-%doc svnClientAdapter/readme.txt svnClientAdapter/changelog.txt svnClientAdapter/license.txt 
-%{gcj_files}
+%{eclipse_inst}/subclipse
+%{eclipse_inst}/subclipse-clientadapter*
+%doc org.tigris.subversion.subclipse.graph/icons/readme.txt
 
-%files book
+%files graph
 %defattr(-,root,root)
-%{eclipse_inst}/dropins/subclipse-book
+%{eclipse_inst}/subclipse-graph
