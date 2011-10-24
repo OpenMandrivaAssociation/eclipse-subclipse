@@ -1,49 +1,37 @@
-%define gcj_support     0
+%global eclipse_name       eclipse
+%global eclipse_base       %{_libdir}/%{eclipse_name}
+%global install_loc        %{_datadir}/eclipse/dropins
+%global javahl_plugin_name org.tigris.subversion.clientadapter.javahl_1.6.15
 
-%define eclipse_name    eclipse
-%define eclipse_base    %{_libdir}/%{eclipse_name}
-%define eclipse_inst	%{_datadir}/%{eclipse_name}
-%define javahl_plugin_name org.tigris.subversion.clientadapter.javahl_1.5.4.1
+# Add a comment to have something to commit to try to reproduce Adam
+# Williamson's deadlock bug.
 
 Name:           eclipse-subclipse
-Version:        1.4.7
-Release:        %mkrel 0.3.0
-Epoch:          0
+Version:        1.6.17
+Release:        1
 Summary:        Subversion Eclipse plugin
+
 Group:          Development/Java
 License:        EPL and CC-BY
 URL:            http://subclipse.tigris.org/
-Source0:        subclipse-%{version}.tgz
+Source0:        subclipse-%{version}.tar.xz
 # Script to fetch the source code
-# the new source tarball does not includes the book feature and the layout is
-# different than the source repository
-Source10:       subclipse-fetch-1.2.4.sh
-Patch0:         eclipse-subclipse-1.4.7-dependencies.patch
-BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root
-%if %mdkversion == 200800
-# For fixed EOL handling:
-# you may remove this on 2007-06-25 when iurt chroots are updated
-BuildRequires: spec-helper >= 0.26
-%endif
-BuildRequires:          ant
-BuildRequires:          zip
-BuildRequires:          java-rpmbuild
-BuildRequires:          eclipse-pde
-%if %{gcj_support}
-BuildRequires:          java-gcj-compat-devel
-%else
-BuildArch:              noarch
-BuildRequires:          java-devel
-%endif
-Requires:               eclipse-platform
-BuildRequires:          svn-javahl
-Requires:               svn-javahl
-BuildRequires:          svnkit
-Requires:               svnkit
-BuildRequires:          trilead-ssh2
-Requires:               trilead-ssh2
+Source10:       subclipse-fetch.sh
+Patch0:         eclipse-subclipse-1.6.0-dependencies.patch
 
 BuildArch:              noarch
+
+BuildRequires:          ant
+BuildRequires:          jpackage-utils >= 0:1.6
+BuildRequires:          coreutils
+BuildRequires:          eclipse-pde
+BuildRequires:          eclipse-gef
+Requires:               eclipse-platform
+
+BuildRequires:          eclipse-svnkit >= 1.2.2
+Requires:               eclipse-svnkit >= 1.2.2
+BuildRequires:          svn-javahl >= 1.6
+Requires:               svn-javahl >= 1.6
 
 Obsoletes:              eclipse-subclipse-book < 1.4
 
@@ -54,46 +42,44 @@ IDE.
 %package graph
 Summary:        Subversion Revision Graph
 Group:          Development/Java
-Requires:       %{name} = %{version}
-Requires:       eclipse-gef
+Requires:               %{name} = %{version}
+Requires:               eclipse-gef
 
 %description graph
 Subversion Revision Graph for Subclipse.
 
+
 %prep
 %setup -q -n subclipse-%{version}
 %patch0 -p1
-# fixing wrong-file-end-of-line-encoding warnings
-sed -i 's/\r//' org.tigris.subversion.subclipse.graph/icons/readme.txt
 
 # remove javahl sources
 rm -rf org.tigris.subversion.clientadapter.javahl/src/org/tigris/subversion/javahl
 ln -s %{_javadir}/svn-javahl.jar org.tigris.subversion.clientadapter.javahl
 
+# fixing wrong-file-end-of-line-encoding warnings
+sed -i 's/\r//' org.tigris.subversion.subclipse.graph/icons/readme.txt
+
+
 %build
-%{eclipse_base}/buildscripts/pdebuild            \
-  -f org.tigris.subversion.clientadapter.feature \
-  -o `pwd`/orbitDeps
-%{eclipse_base}/buildscripts/pdebuild                   \
-  -f org.tigris.subversion.clientadapter.javahl.feature \
-  -o `pwd`/orbitDeps
-%{eclipse_base}/buildscripts/pdebuild                   \
+%{eclipse_base}/buildscripts/pdebuild -a "-DjavacSource=1.5 -DjavacTarget=1.5"      \
+  -f org.tigris.subversion.clientadapter.feature 
+%{eclipse_base}/buildscripts/pdebuild -a "-DjavacSource=1.5 -DjavacTarget=1.5"      \
+  -f org.tigris.subversion.clientadapter.javahl.feature 
+%{eclipse_base}/buildscripts/pdebuild -a "-DjavacSource=1.5 -DjavacTarget=1.5"     \
   -f org.tigris.subversion.clientadapter.svnkit.feature \
-  -o `pwd`/orbitDeps                                    \
   -d svnkit
-%{eclipse_base}/buildscripts/pdebuild \
-  -f org.tigris.subversion.subclipse  \
-  -o `pwd`/orbitDeps
-%{eclipse_base}/buildscripts/pdebuild              \
+%{eclipse_base}/buildscripts/pdebuild -a "-DjavacSource=1.5 -DjavacTarget=1.5" \
+  -f org.tigris.subversion.subclipse  
+%{eclipse_base}/buildscripts/pdebuild -a "-DjavacSource=1.5 -DjavacTarget=1.5" \
   -f org.tigris.subversion.subclipse.graph.feature \
-  -o `pwd`/orbitDeps                               \
   -d gef
 
-%install
-rm -rf $RPM_BUILD_ROOT
-install -d -m 755 $RPM_BUILD_ROOT%{eclipse_inst}
 
-installBase=$RPM_BUILD_ROOT%{eclipse_inst}
+%install
+install -d -m 755 $RPM_BUILD_ROOT%{install_loc}
+
+installBase=$RPM_BUILD_ROOT%{install_loc}
 install -d -m 755 $installBase
 
 # installing features
@@ -112,23 +98,15 @@ unzip -q -d $installBase/subclipse-graph build/rpmBuild/org.tigris.subversion.su
 rm $installBase/subclipse-clientadapter-javahl/eclipse/plugins/%{javahl_plugin_name}/svn-javahl.jar
 ln -s %{_javadir}/svn-javahl.jar $installBase/subclipse-clientadapter-javahl/eclipse/plugins/%{javahl_plugin_name}
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-%if %{gcj_support}
-%post
-%{update_gcjdb}
-
-%postun
-%{clean_gcjdb}
-%endif
-
 %files
 %defattr(-,root,root)
-%{eclipse_inst}/subclipse
-%{eclipse_inst}/subclipse-clientadapter*
+%{install_loc}/subclipse
+%{install_loc}/subclipse-clientadapter*
 %doc org.tigris.subversion.subclipse.graph/icons/readme.txt
+
 
 %files graph
 %defattr(-,root,root)
-%{eclipse_inst}/subclipse-graph
+%{install_loc}/subclipse-graph
+
+
