@@ -8,7 +8,7 @@
 
 Name:           eclipse-subclipse
 Version:        1.6.17
-Release:        1
+Release:        3
 Summary:        Subversion Eclipse plugin
 
 Group:          Development/Java
