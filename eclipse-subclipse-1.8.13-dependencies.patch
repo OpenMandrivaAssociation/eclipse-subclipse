@@ -1,0 +1,75 @@
+From 1966e39129419d304bc90daa795231db49e23bbc Mon Sep 17 00:00:00 2001
+From: Sami Wagiaalla <swagiaal@redhat.com>
+Date: Thu, 11 Oct 2012 09:27:59 -0400
+Subject: [PATCH] eclipse-subclipse-1.8.13-dependencies
+
+Conflicts:
+	org.tigris.subversion.clientadapter.javahl.feature/feature.xml
+---
+ .../feature.xml                                        | 18 ------------------
+ .../META-INF/MANIFEST.MF                               |  2 ++
+ .../build.properties                                   |  7 ++++---
+ 3 files changed, 6 insertions(+), 21 deletions(-)
+
+diff --git org.tigris.subversion.clientadapter.javahl.feature/feature.xml org.tigris.subversion.clientadapter.javahl.feature/feature.xml
+index 56aa51b..0ac4d48 100644
+--- org.tigris.subversion.clientadapter.javahl.feature/feature.xml
++++ org.tigris.subversion.clientadapter.javahl.feature/feature.xml
+@@ -35,22 +35,4 @@
+          version="0.0.0"
+          unpack="false"/>
+ 
+-   <plugin
+-         id="org.tigris.subversion.clientadapter.javahl.win32"
+-         os="win32"
+-         arch="x86"
+-         download-size="0"
+-         install-size="0"
+-         version="0.0.0"
+-         fragment="true"/>
+-
+-   <plugin
+-         id="org.tigris.subversion.clientadapter.javahl.win64"
+-         os="win32"
+-         arch="x86_64"
+-         download-size="0"
+-         install-size="0"
+-         version="0.0.0"
+-         fragment="true"/>
+-
+ </feature>
+diff --git org.tigris.subversion.clientadapter.javahl/META-INF/MANIFEST.MF org.tigris.subversion.clientadapter.javahl/META-INF/MANIFEST.MF
+index ed6b62e..65be0be 100644
+--- org.tigris.subversion.clientadapter.javahl/META-INF/MANIFEST.MF
++++ org.tigris.subversion.clientadapter.javahl/META-INF/MANIFEST.MF
+@@ -7,6 +7,8 @@ Bundle-Activator: org.tigris.subversion.clientadapter.javahl.Activator
+ Bundle-Vendor: tigris.org
+ Require-Bundle: org.eclipse.core.runtime,
+  org.tigris.subversion.clientadapter;bundle-version="[1.10.0,1.11.0)"
++Bundle-ClassPath: clientadapter-javahl.jar,
++ svn-javahl.jar
+ Eclipse-LazyStart: true
+ Export-Package: org.apache.subversion.javahl,
+  org.apache.subversion.javahl.callback,
+diff --git org.tigris.subversion.clientadapter.javahl/build.properties org.tigris.subversion.clientadapter.javahl/build.properties
+index 5ae4430..21b4f3e 100644
+--- org.tigris.subversion.clientadapter.javahl/build.properties
++++ org.tigris.subversion.clientadapter.javahl/build.properties
+@@ -1,5 +1,5 @@
+-source.. = src/
+-output.. = bin/
++source.clientadapter-javahl.jar = src/
++output.clientadapter-javahl.jar = bin/
+ bin.includes = META-INF/,\
+                .,\
+                plugin.xml,\
+@@ -7,4 +7,5 @@ bin.includes = META-INF/,\
+                about.ini,\
+                about.properties,\
+                epl-v10.html,\
+-               svn.gif
++               svn.gif,\
++               svn-javahl.jar
+-- 
+1.7.11.4
+
