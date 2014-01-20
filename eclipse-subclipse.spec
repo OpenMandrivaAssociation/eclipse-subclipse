@@ -50,7 +50,7 @@ Subversion Revision Graph for Subclipse.
 
 %prep
 %setup -q -n subclipse-%{version}
-%patch0 -b .sav
+%patch0
 
 # remove javahl sources
 rm -rf org.tigris.subversion.clientadapter.javahl/src/org/tigris/subversion/javahl
