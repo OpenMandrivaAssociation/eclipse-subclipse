@@ -1,18 +1,11 @@
 %{?_javapackages_macros:%_javapackages_macros}
-%global eclipse_name       eclipse
-%global eclipse_base       %{_libdir}/%{eclipse_name}
 %global install_loc        %{_datadir}/eclipse/dropins
-%global javahl_plugin_name org.tigris.subversion.clientadapter.javahl_1.8.3
-
-# Add a comment to have something to commit to try to reproduce Adam
-# Williamson's deadlock bug.
 
 Name:           eclipse-subclipse
-Version:        1.10.2
-Release:        2.0%{?dist}
+Version:        1.10.5
+Release:        1.1
 Summary:        Subversion Eclipse plugin
-
-
+Group:		Development/Java
 License:        EPL and CC-BY
 URL:            http://subclipse.tigris.org/
 Source0:        subclipse-%{version}.tar.xz
@@ -22,17 +15,12 @@ Patch0:         eclipse-subclipse-1.8.13-dependencies.patch
 
 BuildArch:              noarch
 
-BuildRequires:          ant
-BuildRequires:          jpackage-utils >= 0:1.6
-BuildRequires:          coreutils
-BuildRequires:          eclipse-pde >= 4.2.0-0.6
+BuildRequires:          eclipse-pde >= 4.3.2
 BuildRequires:          eclipse-gef
-Requires:               eclipse-platform >= 4.2.0-0.6
+Requires:               eclipse-platform >= 4.3.2
 
-BuildRequires:          subversion-javahl >= 1.8.3
-Requires:               subversion-javahl >= 1.8.3
-
-Obsoletes:              eclipse-subclipse-book < 1.4
+BuildRequires:          subversion-javahl >= 1.8.9
+Requires:               subversion-javahl >= 1.8.9
 
 %description
 Subclipse is an Eclipse plugin that adds Subversion integration to the Eclipse
@@ -40,17 +28,15 @@ IDE.
 
 %package graph
 Summary:        Subversion Revision Graph
-
 Requires:       %{name} = %{version}
 Requires:       eclipse-gef
 
 %description graph
 Subversion Revision Graph for Subclipse.
 
-
 %prep
 %setup -q -n subclipse-%{version}
-%patch0
+%patch0 -p0 -b .sav
 
 # remove javahl sources
 rm -rf org.tigris.subversion.clientadapter.javahl/src/org/tigris/subversion/javahl
@@ -59,16 +45,14 @@ ln -s %{_javadir}/svn-javahl.jar org.tigris.subversion.clientadapter.javahl
 # fixing wrong-file-end-of-line-encoding warnings
 sed -i 's/\r//' org.tigris.subversion.subclipse.graph/icons/readme.txt
 
-
 %build
 eclipse-pdebuild -f org.tigris.subversion.clientadapter.feature 
 
 eclipse-pdebuild -f org.tigris.subversion.clientadapter.javahl.feature
  
 # Do not build svnkit as our svnkit package is outdated
-#%{eclipse_base}/buildscripts/pdebuild -a "-DjavacSource=1.5 -DjavacTarget=1.5"     \
-#  -f org.tigris.subversion.clientadapter.svnkit.feature \
-#  -d svnkit
+#eclipse-pdebuild -f org.tigris.subversion.clientadapter.svnkit.feature -d svnkit
+
 eclipse-pdebuild -f org.tigris.subversion.subclipse
   
 eclipse-pdebuild -f org.tigris.subversion.subclipse.graph.feature -d gef
@@ -77,40 +61,46 @@ eclipse-pdebuild -f org.tigris.subversion.subclipse.graph.feature -d gef
 %install
 install -d -m 755 $RPM_BUILD_ROOT%{install_loc}
 
-installBase=$RPM_BUILD_ROOT%{install_loc}
-install -d -m 755 $installBase
-
 # installing features
-install -d -m 755 $installBase/subclipse-clientadapter
-unzip -q -d $installBase/subclipse-clientadapter build/rpmBuild/org.tigris.subversion.clientadapter.feature.zip
-install -d -m 755 $installBase/subclipse-clientadapter-javahl
-unzip -q -d $installBase/subclipse-clientadapter-javahl build/rpmBuild/org.tigris.subversion.clientadapter.javahl.feature.zip
-#install -d -m 755 $installBase/subclipse-clientadapter-svnkit
-#unzip -q -d $installBase/subclipse-clientadapter-svnkit build/rpmBuild/org.tigris.subversion.clientadapter.svnkit.feature.zip
-install -d -m 755 $installBase/subclipse
-unzip -q -d $installBase/subclipse build/rpmBuild/org.tigris.subversion.subclipse.zip
-install -d -m 755 $installBase/subclipse-graph
-unzip -q -d $installBase/subclipse-graph build/rpmBuild/org.tigris.subversion.subclipse.graph.feature.zip
+install -d -m 755 $RPM_BUILD_ROOT%{install_loc}/subclipse-clientadapter
+unzip -q -d $RPM_BUILD_ROOT%{install_loc}/subclipse-clientadapter build/rpmBuild/org.tigris.subversion.clientadapter.feature.zip
+unzip -q -d $RPM_BUILD_ROOT%{install_loc}/subclipse-clientadapter build/rpmBuild/org.tigris.subversion.clientadapter.javahl.feature.zip
+#unzip -q -d $RPM_BUILD_ROOT%{install_loc}/subclipse-clientadapter build/rpmBuild/org.tigris.subversion.clientadapter.svnkit.feature.zip
+install -d -m 755 $RPM_BUILD_ROOT%{install_loc}/subclipse
+unzip -q -d $RPM_BUILD_ROOT%{install_loc}/subclipse build/rpmBuild/org.tigris.subversion.subclipse.zip
+install -d -m 755 $RPM_BUILD_ROOT%{install_loc}/subclipse-graph
+unzip -q -d $RPM_BUILD_ROOT%{install_loc}/subclipse-graph build/rpmBuild/org.tigris.subversion.subclipse.graph.feature.zip
 
 # replacing jar with links to system libraries
-pushd $installBase/subclipse-clientadapter-javahl/eclipse/plugins/
-unzip %{javahl_plugin_name}.jar -d %{javahl_plugin_name}
-rm %{javahl_plugin_name}.jar
-cd %{javahl_plugin_name}
+pushd $RPM_BUILD_ROOT%{install_loc}/subclipse-clientadapter/eclipse/plugins/
+ADAPTER_JAVAHL=$(ls org.tigris.subversion.clientadapter.javahl_*.jar)
+unzip $ADAPTER_JAVAHL -d ${ADAPTER_JAVAHL%.jar}
+rm $ADAPTER_JAVAHL
+cd ${ADAPTER_JAVAHL%.jar}
 rm svn-javahl.jar
-ln -s %{_javadir}/svn-javahl.jar
+ln -s /usr/share/java/svn-javahl.jar
 popd
 
 %files
+%doc org.tigris.subversion.subclipse.feature/license.html
 %{install_loc}/subclipse
-%{install_loc}/subclipse-clientadapter*
-%doc org.tigris.subversion.subclipse.graph/icons/readme.txt
+%{install_loc}/subclipse-clientadapter
 
 %files graph
+%doc org.tigris.subversion.subclipse.graph.feature/license.html
+%doc org.tigris.subversion.subclipse.graph/icons/readme.txt
 %{install_loc}/subclipse-graph
 
-
 %changelog
+* Fri Jul 18 2014 Mat Booth <mat.booth@redhat.com> - 1.10.5-1
+- Update to latest upstream release
+- Drop ancient obsoletes on subclipse-book, drop unnecessary BRs
+- Fix bogus dates in changelog
+- Install license files as %%doc
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.10.2-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Tue Oct 1 2013 Krzysztof Daniel <kdaniel@redhat.com> 1.10.2-2
 - Fix the javahl version.
 
@@ -208,7 +198,7 @@ popd
 * Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
-* Mon Apr 26 2009 Robert Marcano <robert@marcanoonline.com> 1.6.0-1
+* Sun Apr 26 2009 Robert Marcano <robert@marcanoonline.com> 1.6.0-1
 - Update to upstream 1.6.0
 
 * Mon Mar 23 2009 Alexander Kurtakov <akurtako@redhat.com> 1.4.7-4
@@ -279,7 +269,7 @@ automatically activating bundle org.tigris.subversion.subclipse.core
 - svnClientAdapter documentation files added. Subclipse includes an eclipse
   based documentation for the plugins
 
-* Sat Aug 06 2006 Robert Marcano <robert@marcanoonline.com> 1.1.4-1
+* Sun Aug 06 2006 Robert Marcano <robert@marcanoonline.com> 1.1.4-1
 - Update to upstream 1.1.4
 - License changed to EPL
 - svnClientAdapter-1.1.4-javac-target.patch added fix to svnClientAdapter ant
@@ -314,3 +304,4 @@ automatically activating bundle org.tigris.subversion.subclipse.core
 
 * Wed Apr 26 2006 Ben Konrath <bkonrath@redhat.com> 1.0.1-1
 - initial version based on the work of Robert Marcano
+

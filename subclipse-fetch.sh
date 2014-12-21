@@ -1,5 +1,5 @@
 #!/bin/sh
-VERSION=1.10.2
+VERSION=1.10.5
 svn export --username guest --password "" http://subclipse.tigris.org/svn/subclipse/tags/subclipse/$VERSION/subclipse subclipse-$VERSION
 
 #those sources are missing from the plugin, so copy them back!

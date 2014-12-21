@@ -1,2 +1,4 @@
-sources:
+removed_sources:
   subclipse-1.10.2.tar.xz: 241eb09bd700830f50d62937a86f27f37c7db305
+sources:
+  subclipse-1.10.5.tar.xz: 3da944053fff3568bbc6933b9720c8088c7891d2
