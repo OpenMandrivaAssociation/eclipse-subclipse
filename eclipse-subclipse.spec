@@ -3,7 +3,7 @@
 
 Name:           eclipse-subclipse
 Version:        1.10.5
-Release:        1.1
+Release:        1.2
 Summary:        Subversion Eclipse plugin
 Group:		Development/Java
 License:        EPL and CC-BY
