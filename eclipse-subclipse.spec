@@ -7,7 +7,7 @@ Release:        1.3
 Summary:        Subversion Eclipse plugin
 Group:		Development/Java
 License:        EPL and CC-BY
-URL:            http://subclipse.tigris.org/
+URL:            https://subclipse.tigris.org/
 Source0:        subclipse-%{version}.tar.xz
 # Script to fetch the source code
 Source10:       subclipse-fetch.sh
